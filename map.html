@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Leaflet地图 - 性能优化与标记点</title>
+    <title>busmap</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         html, body {
@@ -33,25 +33,24 @@
         return false;
     }
 
-    var currentLocation = getQueryVariable('currentLocation') || "39.9042,116.4074"; // 默认位置：北京
-    var zoom = getQueryVariable('zoom') || 8; // 默认缩放级别降低为8
-
+    // 解析经纬度
     function parseLatLng(input) {
         var parts = input.split(',');
         return [parseFloat(parts[0]), parseFloat(parts[1])];
     }
 
-    var center = parseLatLng(currentLocation);
+    var currentLocation = getQueryVariable('currentLocation') || "39.9042,116.4074"; // 默认位置：北京
+    var zoom = getQueryVariable('zoom') || 12; // 默认缩放级别
 
+    var center = parseLatLng(currentLocation);
     var map = L.map('map').setView(center, zoom);
 
-    // 使用轻量级的瓦片服务
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors, © CartoDB'
     }).addTo(map);
 
-    // 添加标记点
+    // 仅添加标记点，不包括当前位置
     var markers = getQueryVariable('markers');
     if (markers) {
         var locations = markers.split('|').map(parseLatLng);
