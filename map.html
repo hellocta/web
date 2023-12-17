@@ -42,7 +42,13 @@
     var zoom = getQueryVariable('zoom') || 12;
 
     var center = parseLatLng(currentLocation);
-    var map = L.map('map').setView(center, zoom);
+    var map = L.map('map', {
+        center: center,
+        zoom: zoom,
+        zoomControl: false, // 禁用缩放控件
+        dragging: true, // 禁用拖动
+        scrollWheelZoom: true // 禁用滚轮缩放
+    });
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
         maxZoom: 19,
