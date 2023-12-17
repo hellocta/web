@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet地图 - 带参数</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return false;
+    }
+
+    // 获取当前位置、标记位置和缩放值的参数
+    var currentLocation = getQueryVariable('currentLocation');
+    var markers = getQueryVariable('markers');
+    var zoom = getQueryVariable('zoom') || 13; // 如果没有提供缩放值，默认为13
+
+    // 解析经纬度
+    function parseLatLng(input) {
+        var parts = input.split(',');
+        return [parseFloat(parts[0]), parseFloat(parts[1])];
+    }
+
+    // 设置地图中心
+    var center = currentLocation ? parseLatLng(currentLocation) : [39.9042, 116.4074]; // 如果没有提供当前位置，默认为北京
+
+    var map = L.map('map').setView(center, zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    if (markers) {
+        var locations = markers.split('|').map(function(loc) {
+            return parseLatLng(loc);
+        });
+
+        L.polyline(locations, {color: 'red'}).addTo(map);
+
+        locations.forEach(function(loc) {
+            L.marker(loc).addTo(map);
+        });
+    }
+</script>
+
+</body>
+</html>
