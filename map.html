@@ -27,20 +27,19 @@
         for (var i = 0; i < vars.length; i++) {
             var pair = vars[i].split("=");
             if (pair[0] == variable) {
-                return pair[1];
+                return decodeURIComponent(pair[1]);
             }
         }
         return false;
     }
 
-    // 解析经纬度
     function parseLatLng(input) {
         var parts = input.split(',');
         return [parseFloat(parts[0]), parseFloat(parts[1])];
     }
 
-    var currentLocation = getQueryVariable('currentLocation') || "39.9042,116.4074"; // 默认位置：北京
-    var zoom = getQueryVariable('zoom') || 12; // 默认缩放级别
+    var currentLocation = getQueryVariable('currentLocation') || "39.9042,116.4074";
+    var zoom = getQueryVariable('zoom') || 12;
 
     var center = parseLatLng(currentLocation);
     var map = L.map('map').setView(center, zoom);
@@ -50,12 +49,25 @@
         attribution: '© OpenStreetMap contributors, © CartoDB'
     }).addTo(map);
 
-    // 仅添加标记点，不包括当前位置
+    // 添加当前坐标的红色标记
+    L.marker(center, {icon: L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    })}).addTo(map);
+
+    // 添加其他坐标的标记
     var markers = getQueryVariable('markers');
     if (markers) {
         var locations = markers.split('|').map(parseLatLng);
         locations.forEach(function(loc) {
-            L.marker(loc).addTo(map);
+            // 如果当前坐标与其他坐标相同，则跳过
+            if (loc[0] !== center[0] || loc[1] !== center[1]) {
+                L.marker(loc).addTo(map);
+            }
         });
     }
 </script>
