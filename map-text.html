@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bus Map with Custom Markers</title>
+    <title>Bus Map with Permanent Text Labels</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         html, body {
@@ -12,6 +12,13 @@
         #map {
             width: 100%;
             height: 100%;
+        }
+        .custom-div-icon {
+            background-color: white;
+            border: 1px solid #666;
+            border-radius: 5px;
+            padding: 5px;
+            text-align: center;
         }
     </style>
 </head>
@@ -55,17 +62,14 @@
         attribution: '© OpenStreetMap contributors, © CartoDB'
     }).addTo(map);
 
-    // Add a red marker for the current location
-    L.marker(center, {icon: L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    })}).addTo(map);
+    // Add a red marker for the current location with permanent text label
+    var currentLocationIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<div style='color: red;'>当前位置</div>"
+    });
+    L.marker(center, {icon: currentLocationIcon}).addTo(map);
 
-    // Add other markers with text
+    // Add other markers with permanent text labels
     var markers = getQueryVariable('markers');
     if (markers) {
         var items = markers.split('|');
@@ -74,10 +78,12 @@
             var loc = [parseFloat(parts[0]), parseFloat(parts[1])];
             var text = parts.slice(2).join(', '); // Join the remaining parts for the label
 
-            if (loc[0] !== center[0] || loc[1] !== center[1]) {
-                var marker = L.marker(loc).addTo(map);
-                marker.bindPopup(text).openPopup();
-            }
+            var customIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: text
+            });
+
+            L.marker(loc, {icon: customIcon}).addTo(map);
         });
     }
 </script>
