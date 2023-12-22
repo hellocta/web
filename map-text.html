@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Map with Custom Markers</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        return false;
+    }
+
+    function parseLatLng(input) {
+        var parts = input.split(',');
+        return [parseFloat(parts[0]), parseFloat(parts[1])];
+    }
+
+    var currentLocation = getQueryVariable('currentLocation') || "39.9042,116.4074";
+    var zoom = getQueryVariable('zoom') || 12;
+
+    var center = parseLatLng(currentLocation);
+    var map = L.map('map', {
+        center: center,
+        zoom: zoom,
+        zoomControl: true,
+        dragging: true,
+        scrollWheelZoom: true
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors, © CartoDB'
+    }).addTo(map);
+
+    // Add a red marker for the current location
+    L.marker(center, {icon: L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    })}).addTo(map);
+
+    // Add other markers with text
+    var markers = getQueryVariable('markers');
+    if (markers) {
+        var items = markers.split('|');
+        items.forEach(function(item) {
+            var parts = item.split(',');
+            var loc = [parseFloat(parts[0]), parseFloat(parts[1])];
+            var text = parts.slice(2).join(', '); // Join the remaining parts for the label
+
+            if (loc[0] !== center[0] || loc[1] !== center[1]) {
+                var marker = L.marker(loc).addTo(map);
+                marker.bindPopup(text).openPopup();
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
